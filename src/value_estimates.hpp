@@ -4,7 +4,7 @@
 #include <vector>
 
 /** Base class for value estimation classes */
-struct value_estimate_base {
+struct valest_base {
 	virtual double get_value(int arm) const = 0;
 	virtual void update(int arm, double reward) = 0;
 };
@@ -12,7 +12,7 @@ struct value_estimate_base {
 
 /** This estimator is used when we know the true values of the
  * arms. */
-class valest_known : public value_estimate_base {
+class valest_known : public valest_base {
 public:
 
 	valest_known(const std::vector<double>& values) 
@@ -29,7 +29,7 @@ private:
 
 /** This estimator uses the last observed reward as an estimate of an
  * arm's value. */
-class valest_last : public value_estimate_base {
+class valest_last : public valest_base {
 public:
 
 	valest_last(int num_arms, double default_value=0) 
@@ -46,7 +46,7 @@ private:
 
 /** This estimator uses the average of observed rewards as an estimate
  * of an arms value */
-class valest_avg : public value_estimate_base {
+class valest_avg : public valest_base {
 public:
 
 	valest_avg(int num_arms, double default_value=0)

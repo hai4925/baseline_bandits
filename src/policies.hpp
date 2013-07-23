@@ -1,10 +1,10 @@
-#ifndef INCLUDE_PARAMETRIC_POLICY_H
+#ifndef INCLUDE_POLICIES_H
 #define INCLUDE_POLICIES_H
 
 #include <Eigen/Dense>
 #include <random>
 
-class parametric_policy_base {
+class policy_base {
 public:
 
 	virtual int sample_arm(std::mt19937& rng) const = 0;
@@ -17,10 +17,12 @@ public:
 
 	virtual Eigen::VectorXd get_params() const = 0;
 
+	virtual int max_arm() const = 0;
+
 };
 
 
-class gibbs_policy : public parametric_policy_base {
+class gibbs_policy : public policy_base {
 
 public:
 
@@ -57,6 +59,10 @@ public:
 
 	virtual Eigen::VectorXd get_params() const override {
 		return prefs;
+	}
+
+	virtual int max_arm() const override {
+		return num_arms;
 	}
 
 private:
