@@ -7,6 +7,8 @@
 class policy_base {
 public:
 
+	virtual void reset() = 0;
+
 	virtual int sample_arm(std::mt19937& rng) const = 0;
 
 	virtual double get_prob(int arm) const = 0;
@@ -28,6 +30,10 @@ public:
 
 	gibbs_policy(int num_arms) 
 		: num_arms(num_arms), prefs(Eigen::VectorXd::Zero(num_arms)) {}
+
+	virtual void reset() override {
+		prefs = Eigen::VectorXd::Zero(num_arms);
+	}
 
 	virtual int sample_arm(std::mt19937& rng) const override {
 		double x = std::uniform_real_distribution<>(0, norm_const())(rng);

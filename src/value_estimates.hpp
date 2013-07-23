@@ -5,6 +5,7 @@
 
 /** Base class for value estimation classes */
 struct valest_base {
+	virtual void reset() = 0;
 	virtual double get_value(int arm) const = 0;
 	virtual void update(int arm, double reward) = 0;
 };
@@ -18,9 +19,13 @@ public:
 	valest_known(const std::vector<double>& values) 
 		: arm_values(values) {}
 
-	double get_value(int arm) const { return arm_values[arm]; }
+	virtual void reset() override {}
 
-	void update(int arm, double reward) {}
+	double get_value(int arm) const override { 
+		return arm_values[arm]; 
+	}
+
+	void update(int arm, double reward) override {}
 
 private:
 	std::vector<double> arm_values;
@@ -33,13 +38,23 @@ class valest_last : public valest_base {
 public:
 
 	valest_last(int num_arms, double default_value=0) 
-		: last_reward(num_arms, default_value) {}
+		: default_value(default_value),
+			last_reward(num_arms, default_value) {}
 
-	double get_value(int arm) const { return last_reward[arm]; }
+	void reset() override {
+		for (auto& lr : last_reward) lr = default_value;
+	}
 
-	void update(int arm, double reward) { last_reward[arm] = reward; }
+	double get_value(int arm) const override { 
+		return last_reward[arm]; 
+	}
+
+	void update(int arm, double reward) override { 
+		last_reward[arm] = reward; 
+	}
 
 private:
+	double default_value;
 	std::vector<double> last_reward;
 };
 
@@ -52,12 +67,19 @@ public:
 	valest_avg(int num_arms, double default_value=0)
 		:total_reward(num_arms, 0), num_pulls(num_arms, 0) {}
 
-	double get_value(int arm) const {
+	void reset() override {
+		for (int i = 0; i < total_reward.size(); ++i) {
+			total_reward[i] = 0;
+			num_pulls[i] = 0;
+		}
+	}
+
+	double get_value(int arm) const override {
 		if (num_pulls[arm] == 0) return default_value;
 		else return total_reward[arm] / num_pulls[arm];
 	}
 
-	void update(int arm, double reward) {
+	void update(int arm, double reward) override {
 		total_reward[arm] += reward;
 		num_pulls[arm] += 1;
 	}

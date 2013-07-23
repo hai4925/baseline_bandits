@@ -11,7 +11,7 @@ class baseline_base {
 
 public:
 
-	virtual double operator()(const policy_base* policy, 
+	virtual double get_value(const policy_base* policy, 
 														const valest_base* values) = 0;
 
 };
@@ -22,7 +22,7 @@ class zero_baseline : public baseline_base {
 	
 public:
 	
-	virtual double operator()(const policy_base*,
+	virtual double get_value(const policy_base*,
 														const valest_base*) override {
 		return 0;
 	}
@@ -35,7 +35,7 @@ class value_baseline : public baseline_base {
 
 public:
 
-	virtual double operator()(const policy_base* policy,
+	virtual double get_value(const policy_base* policy,
 														const valest_base* values) override {
 		double b = 0;
 		for (int arm = 0; arm < policy->max_arm(); ++arm) {
@@ -52,7 +52,7 @@ class trcov_baseline : public baseline_base {
 
 public:
 
-  virtual double operator()(const policy_base* policy,
+  virtual double get_value(const policy_base* policy,
 														const valest_base* values) override {
 
     // Compute unnormalized weights and normalizing constant
