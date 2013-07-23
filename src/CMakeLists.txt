@@ -13,6 +13,6 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 set (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_CXX_COMPILER "clang++")
-set (CMAKE_CXX_FLAGS "-stdlib=libc++ -Wall")
+set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall")
 
 
