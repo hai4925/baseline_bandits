@@ -1,10 +1,10 @@
 cmake_minimum_required (VERSION 2.8.8)
 project (bandit_baseline CXX)
 
-add_library (lib_gibbs_policy OBJECT gibbs_policy.cpp)
+#add_library (lib_gibbs_policy OBJECT gibbs_policy.cpp)
 
-add_executable (test test.cpp
-               $<TARGET_OBJECTS:lib_gibbs_policy>)
+add_executable (test test.cpp)
+#               $<TARGET_OBJECTS:lib_gibbs_policy>)
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
