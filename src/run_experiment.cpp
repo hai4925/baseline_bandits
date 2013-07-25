@@ -98,6 +98,7 @@ int main(int argc, char const *argv[])
   shared_ptr<baseline_base> baseline = make_baseline(baseline_name);
   shared_ptr<valest_base>   baseline_valest = make_valest(baseline_valest_name);
 
+  // Run the experiment
   for (bandit& b : bandits) {
     policy->reset();
     valest->reset(b);
