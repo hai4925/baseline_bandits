@@ -1,6 +1,7 @@
 #ifndef INCLUDE_BASELINE_H
 #define INCLUDE_BASELINE_H
 
+#include <memory>
 #include <vector>
 
 #include "policies.hpp"
@@ -11,21 +12,21 @@ class baseline_base {
 
 public:
 
-	virtual double get_value(const policy_base* policy, 
-														const valest_base* values) = 0;
+  virtual double get_value(std::shared_ptr<const policy_base> policy, 
+                           std::shared_ptr<const valest_base> values) = 0;
 
 };
 
 
 /* The baseline that always returns zero */
 class zero_baseline : public baseline_base {
-	
+  
 public:
-	
-	virtual double get_value(const policy_base*,
-														const valest_base*) override {
-		return 0;
-	}
+  
+  virtual double get_value(std::shared_ptr<const policy_base> policy, 
+                           std::shared_ptr<const valest_base> values) override {
+    return 0;
+  }
 
 };
 
@@ -35,15 +36,16 @@ class value_baseline : public baseline_base {
 
 public:
 
-	virtual double get_value(const policy_base* policy,
-														const valest_base* values) override {
-		double b = 0;
-		for (int arm = 0; arm < policy->max_arm(); ++arm) {
-			b += policy->get_prob(arm) * values->get_value(arm);
-		}
-		return b;
-	}
-	
+  virtual double get_value(std::shared_ptr<const policy_base> policy, 
+                           std::shared_ptr<const valest_base> values) override {
+
+    double b = 0;
+    for (int arm = 0; arm < policy->max_arm(); ++arm) {
+      b += policy->get_prob(arm) * values->get_value(arm);
+    }
+    return b;
+  }
+  
 };
 
 
@@ -52,24 +54,23 @@ class trcov_baseline : public baseline_base {
 
 public:
 
-  virtual double get_value(const policy_base* policy,
-														const valest_base* values) override {
-
+  virtual double get_value(std::shared_ptr<const policy_base> policy, 
+                           std::shared_ptr<const valest_base> values) override {
     // Compute unnormalized weights and normalizing constant
-		std::vector<double> weights(policy->max_arm());
-		double total_weights = 0;
-		for (int arm = 0; arm < policy->max_arm(); ++arm) {
-			weights[arm] = policy->get_grad(arm).squaredNorm() / policy->get_prob(arm);
-			total_weights += weights[arm];
-		}
-		// Compute baseline as a weighted average of action values
-		double b = 0;
-		for (int arm = 0; arm < policy->max_arm(); ++arm) {
-			b += weights[arm] / total_weights * values->get_value(arm);
-		}
+    std::vector<double> weights(policy->max_arm());
+    double total_weights = 0;
+    for (int arm = 0; arm < policy->max_arm(); ++arm) {
+      weights[arm] = policy->get_grad(arm).squaredNorm() / policy->get_prob(arm);
+      total_weights += weights[arm];
+    }
+    // Compute baseline as a weighted average of action values
+    double b = 0;
+    for (int arm = 0; arm < policy->max_arm(); ++arm) {
+      b += weights[arm] / total_weights * values->get_value(arm);
+    }
 
-		return b;
-	}
+    return b;
+  }
 
 };
 
