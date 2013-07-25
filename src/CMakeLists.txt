@@ -13,8 +13,6 @@ set (CMAKE_BUILD_TYPE Release)
 SET (CMAKE_CXX_COMPILER "clang++")
 set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall")
 
-add_executable(learning_curves learning_curves.cpp)
-target_link_libraries(learning_curves ${Boost_LIBRARIES})
+add_executable(run_experiment run_experiment.cpp)
+target_link_libraries(run_experiment ${Boost_LIBRARIES})
 
-#add_executable (test test.cpp)
-#               $<TARGET_OBJECTS:lib_gibbs_policy>)
