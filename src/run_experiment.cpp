@@ -14,8 +14,7 @@
 using namespace std;
 namespace po = boost::program_options;
 
-
-shared_ptr<valest_base> make_valest(const string& name) {
+auto make_valest(const string& name) -> shared_ptr<valest_base> {
   if (name == "known") return shared_ptr<valest_base>(new valest_known());
   else if (name == "last")  return shared_ptr<valest_base>(new valest_last());
   else if (name == "avg")   return shared_ptr<valest_base>(new valest_avg());
@@ -23,16 +22,14 @@ shared_ptr<valest_base> make_valest(const string& name) {
 }
 
 
-shared_ptr<baseline_base> make_baseline(const string& name) {  
+auto make_baseline(const string& name) -> shared_ptr<baseline_base> {
   if (name == "zero") return shared_ptr<baseline_base>(new zero_baseline());
   else if (name == "value") return shared_ptr<baseline_base>(new value_baseline());
   else if (name == "trcov") return shared_ptr<baseline_base>(new trcov_baseline());  
   throw "bad baseline name!";
 }
 
-
-int main(int argc, char const *argv[])
-{
+auto main(int argc, char *argv[]) -> int {
   // Get the parameters from the command line
   po::options_description desc("Experiment options");
   desc.add_options()

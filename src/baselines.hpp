@@ -12,8 +12,8 @@ class baseline_base {
 
 public:
 
-  virtual double get_value(std::shared_ptr<const policy_base> policy, 
-                           std::shared_ptr<const valest_base> values) = 0;
+  virtual auto get_value(std::shared_ptr<const policy_base> policy,
+                         std::shared_ptr<const valest_base> values) -> double = 0;
 
 };
 
@@ -22,9 +22,9 @@ public:
 class zero_baseline : public baseline_base {
   
 public:
-  
-  virtual double get_value(std::shared_ptr<const policy_base> policy, 
-                           std::shared_ptr<const valest_base> values) override {
+
+  virtual auto get_value(std::shared_ptr<const policy_base> policy,
+                         std::shared_ptr<const valest_base> values) -> double override {
     return 0;
   }
 
@@ -36,9 +36,8 @@ class value_baseline : public baseline_base {
 
 public:
 
-  virtual double get_value(std::shared_ptr<const policy_base> policy, 
-                           std::shared_ptr<const valest_base> values) override {
-
+  virtual auto get_value(std::shared_ptr<const policy_base> policy,
+                         std::shared_ptr<const valest_base> values) -> double override {
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
       b += policy->get_prob(arm) * values->get_value(arm);
@@ -54,9 +53,8 @@ class trcov_baseline : public baseline_base {
 
 public:
 
-  virtual double get_value(std::shared_ptr<const policy_base> policy, 
-                           std::shared_ptr<const valest_base> values) override {
-    
+  virtual auto get_value(std::shared_ptr<const policy_base> policy,
+                         std::shared_ptr<const valest_base> values) -> double override {    
     // Compute unnormalized weights and normalizing constant
     std::vector<double> weights(policy->max_arm());
     double total_weights = 0;

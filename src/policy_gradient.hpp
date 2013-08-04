@@ -8,9 +8,11 @@
 #include "bandit.hpp"
 #include "policies.hpp"
 
-double pg_step(std::mt19937& rng, double alpha, bandit& bandit,
-               std::shared_ptr<policy_base> policy, std::shared_ptr<valest_base> valest,
-               std::shared_ptr<baseline_base> baseline, std::shared_ptr<valest_base> baseline_valest) {
+auto pg_step(std::mt19937& rng, double alpha, bandit& bandit,
+             std::shared_ptr<policy_base> policy, 
+             std::shared_ptr<valest_base> valest,
+             std::shared_ptr<baseline_base> baseline, 
+             std::shared_ptr<valest_base> baseline_valest) -> double {
 
   // Sample an arm and corresponding reward
   int arm = policy->sample_arm(rng);

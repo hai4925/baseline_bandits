@@ -22,15 +22,15 @@ public:
     arm_dists = arms;
   }
 
-  int num_arms() const { return arm_dists.size(); }
-  
-  std::vector<double> arm_means() const {
+  auto num_arms() const -> int { return arm_dists.size(); }
+
+  auto arm_means() const -> std::vector<double> {
     std::vector<double> means;
     for (auto& dist : arm_dists) means.push_back(dist.mean());
     return means;
   }
 
-  double pull_arm(std::mt19937& rng, int arm) {
+  auto pull_arm(std::mt19937& rng, int arm) -> double {
     return arm_dists[arm](rng);
   }
 

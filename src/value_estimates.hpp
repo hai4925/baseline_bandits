@@ -6,7 +6,7 @@
 /** Base class for value estimation classes */
 struct valest_base {
   virtual void reset(const bandit& bandit) = 0;
-  virtual double get_value(int arm) const = 0;
+  virtual auto get_value(int arm) const -> double = 0;
   virtual void update(int arm, double reward) = 0;
 };
 
@@ -20,11 +20,11 @@ public:
     arm_values = bandit.arm_means();
   }
 
-  double get_value(int arm) const override { 
+  virtual auto get_value(int arm) const -> double override {
     return arm_values[arm]; 
   }
 
-  void update(int arm, double reward) override {}
+  virtual void update(int arm, double reward) override {}
 
 private:
   std::vector<double> arm_values;
@@ -39,15 +39,15 @@ public:
   valest_last(double default_value=0) 
     : default_value(default_value) {}
 
-  void reset(const  bandit& bandit) override {
+  virtual void reset(const  bandit& bandit) override {
     last_reward = std::vector<double>(bandit.num_arms(), default_value);
   }
 
-  double get_value(int arm) const override { 
+  virtual auto get_value(int arm) const -> double override {
     return last_reward[arm]; 
   }
 
-  void update(int arm, double reward) override { 
+  virtual void update(int arm, double reward) override { 
     last_reward[arm] = reward; 
   }
 
@@ -65,17 +65,17 @@ public:
   valest_avg(double default_value=0)
     : default_value(default_value) {}
 
-  void reset(const bandit& bandit) override {
+  virtual void reset(const bandit& bandit) override {
     total_reward = std::vector<double>(bandit.num_arms(), 0);
     num_pulls = std::vector<int>(bandit.num_arms(), 0);
   }
 
-  double get_value(int arm) const override {
+  virtual auto get_value(int arm) const -> double override {
     if (num_pulls[arm] == 0) return default_value;
     else return total_reward[arm] / num_pulls[arm];
   }
 
-  void update(int arm, double reward) override {
+  virtual void update(int arm, double reward) override {
     total_reward[arm] += reward;
     num_pulls[arm] += 1;
   }
