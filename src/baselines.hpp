@@ -12,8 +12,9 @@ class baseline_base {
 
 public:
 
-  virtual auto get_value(std::shared_ptr<const policy_base> policy,
-                         std::shared_ptr<const valest_base> values) -> double = 0;
+  virtual void update(int arm, double reward) {};
+  virtual void reset(const bandit& bandit) {};
+  virtual auto get_value() -> double = 0;
 
 };
 
@@ -23,8 +24,7 @@ class zero_baseline : public baseline_base {
   
 public:
 
-  virtual auto get_value(std::shared_ptr<const policy_base> policy,
-                         std::shared_ptr<const valest_base> values) -> double override {
+  virtual auto get_value() -> double override {
     return 0;
   }
 
@@ -36,14 +36,26 @@ class value_baseline : public baseline_base {
 
 public:
 
-  virtual auto get_value(std::shared_ptr<const policy_base> policy,
-                         std::shared_ptr<const valest_base> values) -> double override {
+  value_baseline(std::shared_ptr<policy_base> policy,
+                 std::shared_ptr<valest_base> valest)
+    : policy(policy), valest(valest) {}
+
+  virtual void reset(const bandit& bandit) override {
+    valest->reset(bandit);
+  }
+
+  virtual auto get_value() -> double override {
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
-      b += policy->get_prob(arm) * values->get_value(arm);
+      b += policy->get_prob(arm) * valest->get_value(arm);
     }
     return b;
   }
+
+private:
+
+  std::shared_ptr<policy_base> policy;
+  std::shared_ptr<valest_base> valest;
   
 };
 
@@ -53,8 +65,15 @@ class trcov_baseline : public baseline_base {
 
 public:
 
-  virtual auto get_value(std::shared_ptr<const policy_base> policy,
-                         std::shared_ptr<const valest_base> values) -> double override {    
+  trcov_baseline(std::shared_ptr<policy_base> policy,
+                 std::shared_ptr<valest_base> valest)
+    : policy(policy), valest(valest) {}
+
+  virtual void reset(const bandit& bandit) override {
+    valest->reset(bandit);
+  }
+
+  virtual auto get_value() -> double override {    
     // Compute unnormalized weights and normalizing constant
     std::vector<double> weights(policy->max_arm());
     double total_weights = 0;
@@ -66,11 +85,16 @@ public:
     // Compute baseline as a weighted average of action values
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
-      b += weights[arm] / total_weights * values->get_value(arm);
+      b += weights[arm] / total_weights * valest->get_value(arm);
     }
 
     return b;
   }
+
+private:
+
+  std::shared_ptr<policy_base> policy;
+  std::shared_ptr<valest_base> valest;
 
 };
 
