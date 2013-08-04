@@ -18,6 +18,10 @@ public:
     }
   }
 
+  void set_arms(const std::vector<dist_type>& arms) {
+    arm_dists = arms;
+  }
+
   int num_arms() const { return arm_dists.size(); }
   
   std::vector<double> arm_means() const {

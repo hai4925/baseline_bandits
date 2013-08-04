@@ -15,4 +15,3 @@ set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall")
 
 add_executable(run_experiment run_experiment.cpp)
 target_link_libraries(run_experiment ${Boost_LIBRARIES})
-

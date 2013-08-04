@@ -56,6 +56,7 @@ public:
 
   virtual double get_value(std::shared_ptr<const policy_base> policy, 
                            std::shared_ptr<const valest_base> values) override {
+    
     // Compute unnormalized weights and normalizing constant
     std::vector<double> weights(policy->max_arm());
     double total_weights = 0;
@@ -63,6 +64,7 @@ public:
       weights[arm] = policy->get_grad(arm).squaredNorm() / policy->get_prob(arm);
       total_weights += weights[arm];
     }
+
     // Compute baseline as a weighted average of action values
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
