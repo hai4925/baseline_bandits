@@ -98,4 +98,37 @@ private:
 
 };
 
+
+class trcov_baseline_grad : public baseline_base {
+
+public:
+
+  trcov_baseline_grad(std::shared_ptr<policy_base> policy,
+                      std::shared_ptr<valest_base> valest,
+                      double step_size)
+    : policy(policy), valest(valest), step_size(step_size), b(0) {}
+
+  virtual void update(int arm, double reward) override {
+    valest->update(arm, reward);
+    Eigen::VectorXd grad = policy->get_grad(arm);
+    double prob = policy->get_prob(arm);
+    b = b + step_size*(valest->get_value(arm) - b)*grad.squaredNorm()/prob/prob;
+  }
+
+  virtual void reset(const bandit& bandit) override {
+    valest->reset(bandit);
+    b = 0;
+  }
+
+  virtual auto get_value() -> double { return b; }
+  
+private:
+
+  std::shared_ptr<policy_base> policy;
+  std::shared_ptr<valest_base> valest;
+  double step_size;
+  double b;
+
+};
+
 #endif

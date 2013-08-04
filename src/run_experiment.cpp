@@ -23,10 +23,15 @@ auto make_valest(const string& name) -> shared_ptr<valest_base> {
 
 
 auto make_baseline(const string& name, shared_ptr<policy_base> policy,
-                   shared_ptr<valest_base> valest) -> shared_ptr<baseline_base> {
-  if (name == "zero") return shared_ptr<baseline_base>(new zero_baseline());
-  else if (name == "value") return shared_ptr<baseline_base>(new value_baseline(policy, valest));
-  else if (name == "trcov") return shared_ptr<baseline_base>(new trcov_baseline(policy, valest));  
+                   shared_ptr<valest_base> valest, double step_size) -> shared_ptr<baseline_base> {
+  if (name == "zero") 
+    return shared_ptr<baseline_base>(new zero_baseline());
+  else if (name == "value") 
+    return shared_ptr<baseline_base>(new value_baseline(policy, valest));
+  else if (name == "trcov") 
+    return shared_ptr<baseline_base>(new trcov_baseline(policy, valest));  
+  else if (name == "trcov_grad") 
+    return shared_ptr<baseline_base>(new trcov_baseline_grad(policy, valest, step_size));
   throw "bad baseline name!";
 }
 
@@ -43,7 +48,10 @@ auto main(int argc, char *argv[]) -> int {
       "Which baseline to use. Must be one of 'zero', 'value', or 'trcov'.")
     ("baseline_value_estimate", 
       po::value<string>()->default_value("avg"), 
-      "Which value estimate to use in the baseline. Must be one of 'last', 'avg', or 'known'.")    
+      "Which value estimate to use in the baseline. Must be one of 'last', 'avg', or 'known'.")
+    ("baseline_stepsize",
+     po::value<double>()->default_value(0.1),
+     "Stepsize for baseline, if it uses one.")
     ("stepsize,s", 
       po::value<double>()->default_value(0.1), 
       "The stepsize parameter (alpha).")
@@ -77,6 +85,7 @@ auto main(int argc, char *argv[]) -> int {
   string valest_name = vm["value_estimate"].as<string>();
   string baseline_name = vm["baseline"].as<string>();
   string baseline_valest_name = vm["baseline_value_estimate"].as<string>();
+  double baseline_step_size = vm["baseline_stepsize"].as<double>();
   double step_size = vm["stepsize"].as<double>();
   int num_arms = vm["num_arms"].as<int>();
   int num_runs = vm["num_runs"].as<int>();
@@ -94,7 +103,7 @@ auto main(int argc, char *argv[]) -> int {
   shared_ptr<policy_base>   policy(new gibbs_policy(num_arms));
   shared_ptr<valest_base>   valest = make_valest(valest_name);
   shared_ptr<valest_base>   baseline_valest = make_valest(baseline_valest_name);
-  shared_ptr<baseline_base> baseline = make_baseline(baseline_name, policy, baseline_valest);
+  shared_ptr<baseline_base> baseline = make_baseline(baseline_name, policy, baseline_valest, baseline_step_size);
 
   policy_gradient_agent pg_agent(policy, valest, baseline, step_size);
 
