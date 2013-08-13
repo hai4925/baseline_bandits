@@ -112,7 +112,7 @@ public:
     valest->update(arm, reward);
     Eigen::VectorXd grad = policy->get_grad(arm);
     double prob = policy->get_prob(arm);
-    b = b + step_size*(valest->get_value(arm) - b)*grad.squaredNorm()/prob/prob;
+    b = b - step_size*(-2)*(valest->get_value(arm) - b)*grad.squaredNorm()/prob/prob;
   }
 
   virtual void reset(const bandit& bandit) override {
