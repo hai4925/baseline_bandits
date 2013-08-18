@@ -32,6 +32,8 @@ auto make_baseline(const string& name, shared_ptr<policy_base> policy,
     return shared_ptr<baseline_base>(new trcov_baseline(policy, valest));  
   else if (name == "trcov_grad") 
     return shared_ptr<baseline_base>(new trcov_baseline_grad(policy, valest, step_size));
+  else if (name == "naive_grad")
+    return shared_ptr<baseline_base>(new naive_baseline_grad(valest, step_size));
   throw "bad baseline name!";
 }
 
