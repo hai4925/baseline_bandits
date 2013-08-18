@@ -1,6 +1,7 @@
 #include <Boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
+#include <cstdio>
 #include <memory>
 #include <random>
 #include <string>
@@ -43,32 +44,35 @@ auto main(int argc, char *argv[]) -> int {
   desc.add_options()
     ("help,h", "produce this help message.")
     ("value_estimate", 
-      po::value<string>()->default_value("last"),
-      "Which value estimate to use. Must be one of 'last', 'avg', or 'known'.")
+     po::value<string>()->default_value("last"),
+     "Which value estimate to use. Must be one of 'last', 'avg', or 'known'.")
     ("baseline", 
-      po::value<string>()->default_value("zero"), 
-      "Which baseline to use. Must be one of 'zero', 'value', or 'trcov'.")
+     po::value<string>()->default_value("zero"), 
+     "Which baseline to use. Must be one of 'zero', 'value', or 'trcov'.")
     ("baseline_value_estimate", 
-      po::value<string>()->default_value("avg"), 
-      "Which value estimate to use in the baseline. Must be one of 'last', 'avg', or 'known'.")
+     po::value<string>()->default_value("avg"), 
+     "Which value estimate to use in the baseline. Must be one of 'last', 'avg', or 'known'.")
     ("baseline_stepsize",
      po::value<double>()->default_value(0.1),
      "Stepsize for baseline, if it uses one.")
     ("stepsize,s", 
-      po::value<double>()->default_value(0.1), 
-      "The stepsize parameter (alpha).")
+     po::value<double>()->default_value(0.1), 
+     "The stepsize parameter (alpha).")
     ("num_arms,a",
-      po::value<int>()->default_value(10),
-      "Number of arms in the testbed.")
+     po::value<int>()->default_value(10),
+     "Number of arms in the testbed.")
     ("num_runs,r", 
-      po::value<int>()->default_value(10000), 
-      "Number of runs for the experiment.")
+     po::value<int>()->default_value(10000), 
+     "Number of runs for the experiment.")
     ("num_pulls,p", 
-      po::value<int>()->default_value(200), 
-      "Number of pulls per run.")
+     po::value<int>()->default_value(200), 
+     "Number of pulls per run.")
     ("seed,S", 
-      po::value<int>()->default_value(0), 
-      "The random seed.")
+     po::value<int>()->default_value(0), 
+     "The random seed.")
+    ("bandit_seed",
+     po::value<int>()->default_value(1),
+     "The random seed used to generate bandits")
   ;
   po::variables_map vm;
   try {
@@ -93,13 +97,14 @@ auto main(int argc, char *argv[]) -> int {
   int num_runs = vm["num_runs"].as<int>();
   int num_pulls = vm["num_pulls"].as<int>();
   int seed = vm["seed"].as<int>();
+  int bandit_seed = vm["bandit_seed"].as<int>();
 
-  // Create random seed
+
+  // Create random seed for agents
   mt19937 rng(seed);
 
-  // Generate the testbed
-  vector<bandit> bandits;
-  for (int i = 0; i < num_runs; ++i) bandits.push_back(bandit(rng, num_arms));
+  // Create random seed for generating bandits
+  mt19937 bandit_rng(bandit_seed);
 
   // Create policy, value estimators, and the baseline
   shared_ptr<policy_base>   policy(new gibbs_policy(num_arms));
@@ -110,15 +115,16 @@ auto main(int argc, char *argv[]) -> int {
   policy_gradient_agent pg_agent(policy, valest, baseline, step_size);
 
   // Run the experiment
-  for (bandit& b : bandits) {
+  for (int i = 0; i < num_runs; ++i) {
+    bandit b(bandit_rng, num_arms);
     pg_agent.reset(b);
     for (int pull = 0; pull < num_pulls; ++pull) {
       int arm = pg_agent.get_arm(rng);
       double reward = b.pull_arm(rng, arm);
       pg_agent.update(arm, reward);
-      cout << reward << " ";
+      printf("%g ", reward);
     }
-    cout << "\n";
+    printf("\n");
   }
 
 }
