@@ -12,8 +12,8 @@ class baseline_base {
 
 public:
 
-  virtual void update(int arm, double reward) {};
   virtual void reset(const bandit& bandit) {};
+  virtual void update(int arm, double reward) {};
   virtual auto get_value() -> double = 0;
 
 };
@@ -44,6 +44,10 @@ public:
     valest->reset(bandit);
   }
 
+  virtual void update(int arm, double reward) {
+    valest->update(arm, reward);
+  }
+
   virtual auto get_value() -> double override {
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
@@ -71,6 +75,10 @@ public:
 
   virtual void reset(const bandit& bandit) override {
     valest->reset(bandit);
+  }
+
+  virtual void update(int arm, double reward) {
+    valest->update(arm, reward);
   }
 
   virtual auto get_value() -> double override {    
@@ -108,16 +116,16 @@ public:
                       double step_size)
     : policy(policy), valest(valest), step_size(step_size), b(0) {}
 
+  virtual void reset(const bandit& bandit) override {
+    valest->reset(bandit);
+    b = 0;
+  }
+
   virtual void update(int arm, double reward) override {
     valest->update(arm, reward);
     Eigen::VectorXd grad = policy->get_grad(arm);
     double prob = policy->get_prob(arm);
     b = b + step_size*(valest->get_value(arm) - b)*grad.squaredNorm()/prob/prob;
-  }
-
-  virtual void reset(const bandit& bandit) override {
-    valest->reset(bandit);
-    b = 0;
   }
 
   virtual auto get_value() -> double { return b; }
@@ -139,14 +147,14 @@ public:
   naive_baseline_grad(std::shared_ptr<valest_base> valest, double step_size)
     : valest(valest), step_size(step_size), b(0) {}
 
-  virtual void update(int arm, double reward) override {
-    valest->update(arm, reward);
-    b = b + step_size*(valest->get_value(arm) - b);
-  }
-
   virtual void reset(const bandit& bandit) override {
     valest->reset(bandit);
     b = 0;
+  }
+
+  virtual void update(int arm, double reward) override {
+    valest->update(arm, reward);
+    b = b + step_size*(valest->get_value(arm) - b);
   }
 
   virtual auto get_value() -> double { return b; }
