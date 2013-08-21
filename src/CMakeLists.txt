@@ -13,11 +13,11 @@ set (CMAKE_BUILD_TYPE Release)
 #SET (CMAKE_CXX_COMPILER "clang++")
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  set (CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wextra -Werror")  
+  set (CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")  
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++ -Wall -Werror")
+  set (CMAKE_CXX_FLAGS "-Wall -Werror")
 endif()
 
 add_executable(run_experiment run_experiment.cpp)

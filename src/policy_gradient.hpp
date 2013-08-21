@@ -2,8 +2,8 @@
 #define INCLUDE_POLICY_GRADIENT_H
 
 #include <Eigen/Dense>
-#include <memory>
-#include <random>
+#include <boost/shared_ptr.hpp>
+#include <boost/random.hpp>
 #include <vector>
 
 #include "bandit.hpp"
@@ -13,14 +13,14 @@ class policy_gradient_agent {
 
 public:
 
-  policy_gradient_agent(std::shared_ptr<policy_base> policy, 
-                        std::shared_ptr<valest_base> valest,
-                        std::shared_ptr<baseline_base> baseline,
+  policy_gradient_agent(boost::shared_ptr<policy_base> policy, 
+                        boost::shared_ptr<valest_base> valest,
+                        boost::shared_ptr<baseline_base> baseline,
                         double step_size)
     : policy(policy), valest(valest), baseline(baseline), step_size(step_size) {}
 
 
-  auto get_arm(std::mt19937& rng) -> int { return policy->sample_arm(rng); }
+  int get_arm(boost::random::mt19937& rng) { return policy->sample_arm(rng); }
 
   void reset(const bandit& bandit) {
     policy->reset();
@@ -38,9 +38,9 @@ public:
 
 private:
 
-  std::shared_ptr<policy_base> policy;
-  std::shared_ptr<valest_base> valest;
-  std::shared_ptr<baseline_base> baseline;
+  boost::shared_ptr<policy_base> policy;
+  boost::shared_ptr<valest_base> valest;
+  boost::shared_ptr<baseline_base> baseline;
   double step_size;
 
 };

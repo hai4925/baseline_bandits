@@ -1,16 +1,16 @@
 #ifndef INCLUDE_BANDIT_H
 #define INCLUDE_BANDIT_H
 
-#include <random>
+#include <boost/random.hpp>
 #include <vector>
 
 class bandit {
 
 public:
 
-  typedef std::normal_distribution<double> dist_type;
+  typedef boost::random::normal_distribution<double> dist_type;
 
-  bandit(std::mt19937& rng, int num_arms) {
+  bandit(boost::random::mt19937& rng, int num_arms) {
     dist_type mean_dist(0,1);
     for (int i = 0; i < num_arms; ++i) {
       double mean = mean_dist(rng);
@@ -22,15 +22,16 @@ public:
     arm_dists = arms;
   }
 
-  auto num_arms() const -> int { return arm_dists.size(); }
+  int num_arms() const { return arm_dists.size(); }
 
-  auto arm_means() const -> std::vector<double> {
+  std::vector<double> arm_means() const {
     std::vector<double> means;
-    for (auto& dist : arm_dists) means.push_back(dist.mean());
+    for (int i = 0; i < arm_dists.size(); ++i)
+      means.push_back(arm_dists[i].mean());
     return means;
   }
 
-  auto pull_arm(std::mt19937& rng, int arm) -> double {
+  double pull_arm(boost::random::mt19937& rng, int arm) {
     return arm_dists[arm](rng);
   }
 

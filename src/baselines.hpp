@@ -1,7 +1,7 @@
 #ifndef INCLUDE_BASELINE_H
 #define INCLUDE_BASELINE_H
 
-#include <memory>
+#include <boost/smart_ptr.hpp>
 #include <vector>
 
 #include "policies.hpp"
@@ -14,7 +14,7 @@ public:
 
   virtual void reset(const bandit& bandit) {};
   virtual void update(int arm, double reward) {};
-  virtual auto get_value() -> double = 0;
+  virtual double get_value() = 0;
 
 };
 
@@ -24,7 +24,7 @@ class zero_baseline : public baseline_base {
   
 public:
 
-  virtual auto get_value() -> double override {
+  virtual double get_value() {
     return 0;
   }
 
@@ -36,11 +36,11 @@ class value_baseline : public baseline_base {
 
 public:
 
-  value_baseline(std::shared_ptr<policy_base> policy,
-                 std::shared_ptr<valest_base> valest)
+  value_baseline(boost::shared_ptr<policy_base> policy,
+                 boost::shared_ptr<valest_base> valest)
     : policy(policy), valest(valest) {}
 
-  virtual void reset(const bandit& bandit) override {
+  virtual void reset(const bandit& bandit) {
     valest->reset(bandit);
   }
 
@@ -48,7 +48,7 @@ public:
     valest->update(arm, reward);
   }
 
-  virtual auto get_value() -> double override {
+  virtual double get_value() {
     double b = 0;
     for (int arm = 0; arm < policy->max_arm(); ++arm) {
       b += policy->get_prob(arm) * valest->get_value(arm);
@@ -58,8 +58,8 @@ public:
 
 private:
 
-  std::shared_ptr<policy_base> policy;
-  std::shared_ptr<valest_base> valest;
+  boost::shared_ptr<policy_base> policy;
+  boost::shared_ptr<valest_base> valest;
   
 };
 
@@ -69,11 +69,11 @@ class trcov_baseline : public baseline_base {
 
 public:
 
-  trcov_baseline(std::shared_ptr<policy_base> policy,
-                 std::shared_ptr<valest_base> valest)
+  trcov_baseline(boost::shared_ptr<policy_base> policy,
+                 boost::shared_ptr<valest_base> valest)
     : policy(policy), valest(valest) {}
 
-  virtual void reset(const bandit& bandit) override {
+  virtual void reset(const bandit& bandit) {
     valest->reset(bandit);
   }
 
@@ -81,7 +81,7 @@ public:
     valest->update(arm, reward);
   }
 
-  virtual auto get_value() -> double override {    
+  virtual double get_value() {    
     // Compute unnormalized weights and normalizing constant
     std::vector<double> weights(policy->max_arm());
     double total_weights = 0;
@@ -101,8 +101,8 @@ public:
 
 private:
 
-  std::shared_ptr<policy_base> policy;
-  std::shared_ptr<valest_base> valest;
+  boost::shared_ptr<policy_base> policy;
+  boost::shared_ptr<valest_base> valest;
 
 };
 
@@ -111,29 +111,29 @@ class trcov_baseline_grad : public baseline_base {
 
 public:
 
-  trcov_baseline_grad(std::shared_ptr<policy_base> policy,
-                      std::shared_ptr<valest_base> valest,
+  trcov_baseline_grad(boost::shared_ptr<policy_base> policy,
+                      boost::shared_ptr<valest_base> valest,
                       double step_size)
     : policy(policy), valest(valest), step_size(step_size), b(0) {}
 
-  virtual void reset(const bandit& bandit) override {
+  virtual void reset(const bandit& bandit) {
     valest->reset(bandit);
     b = 0;
   }
 
-  virtual void update(int arm, double reward) override {
+  virtual void update(int arm, double reward) {
     valest->update(arm, reward);
     Eigen::VectorXd grad = policy->get_grad(arm);
     double prob = policy->get_prob(arm);
     b = b + step_size*(valest->get_value(arm) - b)*grad.squaredNorm()/prob/prob;
   }
 
-  virtual auto get_value() -> double { return b; }
+  virtual double get_value() { return b; }
   
 private:
 
-  std::shared_ptr<policy_base> policy;
-  std::shared_ptr<valest_base> valest;
+  boost::shared_ptr<policy_base> policy;
+  boost::shared_ptr<valest_base> valest;
   double step_size;
   double b;
 
@@ -144,24 +144,24 @@ class naive_baseline_grad : public baseline_base {
 
 public:
 
-  naive_baseline_grad(std::shared_ptr<valest_base> valest, double step_size)
+  naive_baseline_grad(boost::shared_ptr<valest_base> valest, double step_size)
     : valest(valest), step_size(step_size), b(0) {}
 
-  virtual void reset(const bandit& bandit) override {
+  virtual void reset(const bandit& bandit) {
     valest->reset(bandit);
     b = 0;
   }
 
-  virtual void update(int arm, double reward) override {
+  virtual void update(int arm, double reward) {
     valest->update(arm, reward);
     b = b + step_size*(valest->get_value(arm) - b);
   }
 
-  virtual auto get_value() -> double { return b; }
+  virtual double get_value() { return b; }
   
 private:
 
-  std::shared_ptr<valest_base> valest;
+  boost::shared_ptr<valest_base> valest;
   double step_size;
   double b;
 

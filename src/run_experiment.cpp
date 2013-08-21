@@ -1,9 +1,9 @@
-#include <Boost/program_options.hpp>
+#include <boost/program_options.hpp>
+#include <boost/random.hpp>
+#include <boost/shared_ptr.hpp>
 #include <fstream>
 #include <iostream>
 #include <cstdio>
-#include <memory>
-#include <random>
 #include <string>
 
 #include "bandit.hpp"
@@ -12,19 +12,21 @@
 #include "policy_gradient.hpp"
 #include "value_estimates.hpp"
 
-using namespace std;
+using std::string;
+using std::cout;
+using boost::shared_ptr;
+using boost::random::mt19937;
 namespace po = boost::program_options;
 
-auto make_valest(const string& name) -> shared_ptr<valest_base> {
+shared_ptr<valest_base> make_valest(const string& name) {
   if (name == "known") return shared_ptr<valest_base>(new valest_known());
   else if (name == "last")  return shared_ptr<valest_base>(new valest_last());
   else if (name == "avg")   return shared_ptr<valest_base>(new valest_avg());
   throw "bad valest name!";
 }
 
-
-auto make_baseline(const string& name, shared_ptr<policy_base> policy,
-                   shared_ptr<valest_base> valest, double step_size) -> shared_ptr<baseline_base> {
+shared_ptr<baseline_base> make_baseline(const string& name, shared_ptr<policy_base> policy,
+                   shared_ptr<valest_base> valest, double step_size) {
   if (name == "zero") 
     return shared_ptr<baseline_base>(new zero_baseline());
   else if (name == "value") 
@@ -38,7 +40,7 @@ auto make_baseline(const string& name, shared_ptr<policy_base> policy,
   throw "bad baseline name!";
 }
 
-auto main(int argc, char *argv[]) -> int {
+int main(int argc, char *argv[]) {
   // Get the parameters from the command line
   po::options_description desc("Experiment options");
   desc.add_options()
