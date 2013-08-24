@@ -5,6 +5,7 @@
 
 /** Base class for value estimation classes */
 struct valest_base {
+  virtual ~valest_base() {}
   virtual void reset(const bandit& bandit) = 0;
   virtual double get_value(int arm) const = 0;
   virtual void update(int arm, double reward) = 0;

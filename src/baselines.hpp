@@ -12,6 +12,7 @@ class baseline_base {
 
 public:
 
+  virtual ~baseline_base() {};
   virtual void reset(const bandit& bandit) {};
   virtual void update(int arm, double reward) {};
   virtual double get_value() = 0;

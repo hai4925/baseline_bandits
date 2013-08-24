@@ -7,6 +7,8 @@
 class policy_base {
 public:
 
+  virtual ~policy_base() {}
+
   virtual void reset() = 0;
 
   virtual int sample_arm(boost::random::mt19937& rng) const = 0;
