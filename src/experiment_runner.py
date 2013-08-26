@@ -72,7 +72,7 @@ def main(runner):
             ranges.append((range_start, range_end))
         def range_to_str((a,b)):
             if b-a == 1: return str(a)
-            else return str(a)+"-"+str(b-1)
+            else: return str(a)+"-"+str(b-1)
         array_jobs = ",".join(map(range_to_str, ranges))
         print "Scheduling Jobs " + array_jobs
 
