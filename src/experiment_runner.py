@@ -62,7 +62,7 @@ def main(runner):
         def already_done(i):
             file_exists = path.exists(path.join(out_dir, "result_%d.json"%(i-1)))
             return file_exists
-        range_start = 0
+        range_start = 1
         while range_start < parameters.num_settings:
             while range_start < parameters.num_settings and already_done(range_start):
                 range_start += 1
