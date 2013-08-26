@@ -13,9 +13,17 @@ def get_parameters(file_path):
 
 def main(runner):
     param_config_path = sys.argv[1]
+    
+    # Load the configuration file
     param_config = json.load(file(param_config_path,"r"))
+    # Get resource limits out of the configuration file
+    resource_limits = ""
+    if param_config.has_key("__resource_limits__"):
+        resource_limits = param_config["__resource_limits__"]
+        del param_config["__resource_limits__"]
     parameters = ParameterProduct(param_config)
 
+    # Function for outputting json in a consistent style
     out_dir = path.dirname(param_config_path)
     def write_output(basename, data):
         json.dump(data, file(path.join(out_dir, basename), "w"),
@@ -39,14 +47,38 @@ def main(runner):
     # Run experiment on a cluster controlled by torque
     ############################################################################
     if run_type == "torque":
+        # The script run by qsub
         bash_script = \
         """
         #!/bin/bash
+        #PBS -l %(resource_limits)s
+        #PBS -k n
+        export PATH=$PBS_O_PATH
         cd $PBS_O_WORKDIR
         python %(script_name)s %(param_config_path)s torque_job $PBS_ARRAYID
-        """ % {"script_name": sys.argv[0], "param_config_path": param_config_path}
+        """ % { "resource_limits": resource_limits,
+                "script_name": sys.argv[0], 
+                "param_config_path": param_config_path }
+
+        # Which jobs still need to run?
+        ranges = []
+        def already_done(i):
+            file_exists = path.exists(path.join(out_dir, "result_%d.json"%i))
+            return file_exists
+        i = 1
+        while i <= parameters.num_settings:
+            while i <= parameters.num_settings and already_done(i): i += 1
+            start = i
+            while i <= parameters.num_settings and not already_done(i): i += 1
+            ranges.append((start, i-1))
+            
+        def range_to_str((a,b)):
+            if a == b: return str(a)
+            else: return str(a)+"-"+str(b)
+        array_jobs = ",".join(map(range_to_str, ranges))
+        
         arguments = ["qsub",
-                     "-t", "1-%d" % parameters.num_settings,
+                     "-t", array_jobs,
                      "-"]
         p = Popen(arguments, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
         p.communicate(input=bash_script)
@@ -74,15 +106,18 @@ def main(runner):
 
 class ParameterProduct:
     def __init__(self, param_config):
-        """Constructs a new ParameterProduct. The input parameters is a
+        """Constructs a new ParameterProduct. The input param_config is a
         dictionary that maps parameter names to a collection of
         values. This class allows the cross product of the provided
-        parameter settings to be iterated and indexed.
+        parameter settings to be iterated and efficiently indexed.
         """
         self.param_config = param_config
         self.names = list(param_config.iterkeys())
         self.values = list(param_config.itervalues())
         self.num_values = [len(vs) for vs in self.values]
+        # Sort parameters by name, since dictionary iterator order is unpredictable
+        self.names, self.values, self.num_values = \
+            [list(x) for x in zip(*sorted(zip(self.names, self.values, self.num_values)))]
         self.num_settings = reduce(operator.mul, self.num_values)
 
     def get_values(self, parameter):
