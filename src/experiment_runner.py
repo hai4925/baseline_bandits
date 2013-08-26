@@ -60,19 +60,21 @@ def main(runner):
         # Which jobs still need to run?
         ranges = []
         def already_done(i):
-            file_exists = path.exists(path.join(out_dir, "result_%d.json"%i))
+            file_exists = path.exists(path.join(out_dir, "result_%d.json"%(i-1)))
             return file_exists
-        i = 1
-        while i <= parameters.num_settings:
-            while i <= parameters.num_settings and already_done(i): i += 1
-            start = i
-            while i <= parameters.num_settings and not already_done(i): i += 1
-            ranges.append((start, i-1))
-            
+        range_start = 0
+        while range_start <= parameters.num_settings:
+            while range_start <= parameters.num_settings and already_done(range_start):
+                range_start += 1
+            range_end = range_start
+            while range_end <= parameters.num_settings + 1 and not already_done(range_end):
+                range_end += 1
+            ranges.append((range_start, range_end))
         def range_to_str((a,b)):
-            if a == b: return str(a)
-            else: return str(a)+"-"+str(b)
+            if b-a == 1: return str(a)
+            else return str(a)+"-"+str(b-1)
         array_jobs = ",".join(map(range_to_str, ranges))
+        print "Scheduling Jobs " + array_jobs
 
         arguments = ["qsub",
                      "-t", array_jobs,
