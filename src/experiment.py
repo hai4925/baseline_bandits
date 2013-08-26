@@ -1,11 +1,14 @@
 import numpy as np
 from cStringIO import StringIO
+from os import path
 import subprocess
+import sys
 
-def run_experiment(value="last", baseline="zero", baseline_value="avg",
-                   baseline_step_size=0.1, step_size=0.1, num_arms=10, num_runs=10000, 
-                   num_pulls=200, seed=0):
-    arguments = ["./run_experiment",
+def experiment(value="last", baseline="zero", baseline_value="avg",
+               baseline_step_size=0.1, step_size=0.1, num_arms=10, num_runs=10000, 
+               num_pulls=200, seed=0):
+
+    arguments = [path.join(path.dirname(sys.argv[0]), "experiment"),
                  "--value_estimate", value,
                  "--baseline", baseline,
                  "--baseline_value_estimate", baseline_value,

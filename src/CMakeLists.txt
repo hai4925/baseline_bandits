@@ -20,5 +20,5 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set (CMAKE_CXX_FLAGS "-Wall -Werror")
 endif()
 
-add_executable(run_experiment run_experiment.cpp)
-target_link_libraries(run_experiment ${Boost_LIBRARIES})
+add_executable(experiment experiment.cpp)
+target_link_libraries(experiment ${Boost_LIBRARIES})
