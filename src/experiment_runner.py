@@ -70,6 +70,7 @@ def main(runner):
             while range_end <= parameters.num_settings + 1 and not already_done(range_end):
                 range_end += 1
             ranges.append((range_start, range_end))
+            range_start = range_end
         def range_to_str((a,b)):
             if b-a == 1: return str(a)
             else: return str(a)+"-"+str(b-1)
