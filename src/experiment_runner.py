@@ -60,7 +60,7 @@ def main(runner):
         # Which jobs still need to run?
         ranges = []
         def already_done(i):
-            file_exists = path.exists(path.join(out_dir, "result_%d.json"%i))
+            file_exists = path.exists(path.join(out_dir, "result_%d.json"%(i-1)))
             return file_exists
         i = 1
         while i <= parameters.num_settings:
