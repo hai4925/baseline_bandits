@@ -64,10 +64,10 @@ def main(runner):
             return file_exists
         range_start = 0
         while range_start <= parameters.num_settings:
-            while range_start <= parameters.num_settings and already_done(range_start):
+            while range_start < parameters.num_settings and already_done(range_start):
                 range_start += 1
             range_end = range_start
-            while range_end <= parameters.num_settings + 1 and not already_done(range_end):
+            while range_end <= parameters.num_settings and not already_done(range_end):
                 range_end += 1
             ranges.append((range_start, range_end))
             range_start = range_end
