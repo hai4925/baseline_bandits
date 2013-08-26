@@ -51,15 +51,12 @@ def main(runner):
         bash_script = \
         """
         #!/bin/bash
-        #PBS -l %(resource_limits)s
-        #PBS -k n
-        export PATH=$PBS_O_PATH
+        #PBS -k n -l %(resource_limits)s
         cd $PBS_O_WORKDIR
         python %(script_name)s %(param_config_path)s torque_job $PBS_ARRAYID
         """ % { "resource_limits": resource_limits,
                 "script_name": sys.argv[0], 
                 "param_config_path": param_config_path }
-
         # Which jobs still need to run?
         ranges = []
         def already_done(i):
@@ -76,12 +73,14 @@ def main(runner):
             if a == b: return str(a)
             else: return str(a)+"-"+str(b)
         array_jobs = ",".join(map(range_to_str, ranges))
-        
+
         arguments = ["qsub",
                      "-t", array_jobs,
                      "-"]
         p = Popen(arguments, stdout=PIPE, stdin=PIPE, stderr=STDOUT)
-        p.communicate(input=bash_script)
+        response = p.communicate(input=bash_script)
+        print "qsub response: "
+        print response
         p.wait()
 
     ############################################################################
