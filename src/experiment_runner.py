@@ -150,7 +150,7 @@ class ParameterIndex:
         self.n_values = [len(vs) for vs in self.values]
         self.n_settings = reduce(operator.mul, self.n_values)
     
-    def values(self, param): return self.param_config["param"]
+    def param_values(self, param): return self.param_config["param"]
 
     def num_settings(self): return self.n_settings
 
