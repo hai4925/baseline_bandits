@@ -75,7 +75,7 @@ def run_torque(experiment, out_dir, param_index, options):
         print "Scheduling jobs: " + array_request
         p = Popen(["qsub", "-t", array_request, "-"], stdout=PIPE, stdin=PIPE)
         response = p.communicate(input=bash_script)
-        print "qsub response\n%s" % response
+        print "qsub stdout:\n%s\nqsub stderr:\n%s" % response
         p.wait()
 
     elif sys.argv[3] == "job": # Run a specific job
