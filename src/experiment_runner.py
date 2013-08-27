@@ -89,7 +89,7 @@ def run_torque(experiment, out_dir, param_index, options):
                 return load_data(path.join(out_dir, "result_%d.json"%i))
             results = [load(i) for i in parameter_index.all_ixs()]
             save_data(path.join(out_dir, "results.json"), results)
-        except e:
+        except:
             print "Not all jobs are done!"
 
 def true_ranges(l):
