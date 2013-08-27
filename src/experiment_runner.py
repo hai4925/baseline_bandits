@@ -87,7 +87,7 @@ def run_torque(experiment, out_dir, param_index, options):
         try:
             def load(i):
                 return load_data(path.join(out_dir, "result_%d.json"%i))
-            results = [load(i) for i in parameter_index.all_ixs()]
+            results = [load(i) for i in param_index.all_ixs()]
             save_data(path.join(out_dir, "results.json"), results)
         except:
             print "Not all jobs are done!"
