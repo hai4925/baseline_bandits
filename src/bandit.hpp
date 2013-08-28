@@ -10,8 +10,8 @@ public:
 
   typedef boost::random::normal_distribution<double> dist_type;
 
-  bandit(boost::random::mt19937& rng, int num_arms) {
-    dist_type mean_dist(0,1);
+  bandit(boost::random::mt19937& rng, int num_arms, double arm_mean) {
+    dist_type mean_dist(arm_mean,1);
     for (int i = 0; i < num_arms; ++i) {
       double mean = mean_dist(rng);
       arm_dists.push_back(dist_type(mean, 1));

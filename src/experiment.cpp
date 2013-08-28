@@ -74,7 +74,10 @@ int main(int argc, char *argv[]) {
      "The random seed.")
     ("bandit_seed",
      po::value<int>()->default_value(1),
-     "The random seed used to generate bandits")
+     "The random seed used to generate bandits.")
+    ("arm_mean",
+     po::value<double>()->default_value(0),
+     "The expected arm mean in the bandits.")
   ;
   po::variables_map vm;
   try {
@@ -100,6 +103,7 @@ int main(int argc, char *argv[]) {
   int num_pulls = vm["num_pulls"].as<int>();
   int seed = vm["seed"].as<int>();
   int bandit_seed = vm["bandit_seed"].as<int>();
+  double arm_mean = vm["arm_mean"].as<double>();
 
 
   // Create random seed for agents
@@ -118,7 +122,7 @@ int main(int argc, char *argv[]) {
 
   // Run the experiment
   for (int i = 0; i < num_runs; ++i) {
-    bandit b(bandit_rng, num_arms);
+    bandit b(bandit_rng, num_arms, arm_mean);
     pg_agent.reset(b);
     for (int pull = 0; pull < num_pulls; ++pull) {
       int arm = pg_agent.get_arm(rng);
